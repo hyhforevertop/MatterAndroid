@@ -30,8 +30,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import chip.devicecontroller.AttestationInfo
+import chip.devicecontroller.ChipClusters.AdministratorCommissioningCluster
+import chip.devicecontroller.ChipClusters.DefaultClusterCallback
 import chip.devicecontroller.ChipDeviceController
 import chip.devicecontroller.DeviceAttestationDelegate
+import chip.devicecontroller.GetConnectedDeviceCallbackJni
 import chip.devicecontroller.ICDDeviceInfo
 import chip.devicecontroller.ICDRegistrationInfo
 import chip.devicecontroller.NetworkCredentials
@@ -39,19 +42,26 @@ import com.google.chip.chiptool.ChipClient
 import com.google.chip.chiptool.GenericChipDeviceListener
 import com.google.chip.chiptool.NetworkCredentialsParcelable
 import com.google.chip.chiptool.R
+import com.google.chip.chiptool.WebSocketClient
 import com.google.chip.chiptool.bluetooth.BluetoothManager
 import com.google.chip.chiptool.setuppayloadscanner.CHIPDeviceInfo
 import com.google.chip.chiptool.util.DeviceIdUtil
 import com.google.chip.chiptool.util.FragmentUtil
+import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
+import java.lang.Exception
+import java.util.UUID
+import kotlin.math.log
+
 
 @ExperimentalCoroutinesApi
 class DeviceProvisioningFragment : Fragment() {
 
   private lateinit var deviceInfo: CHIPDeviceInfo
+  private lateinit var webSocketClient: WebSocketClient
 
   private var gatt: BluetoothGatt? = null
 
@@ -67,6 +77,9 @@ class DeviceProvisioningFragment : Fragment() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     deviceController = ChipClient.getDeviceController(requireContext())
+
+
+
   }
 
   override fun onCreateView(
@@ -138,7 +151,7 @@ class DeviceProvisioningFragment : Fragment() {
             AlertDialog.Builder(activity)
               .setPositiveButton(
                 "Continue",
-                DialogInterface.OnClickListener { dialog, id ->
+                { dialog, id ->
                   deviceController.continueCommissioning(devicePtr, true)
                 }
               )
@@ -175,7 +188,12 @@ class DeviceProvisioningFragment : Fragment() {
       deviceInfo.setupPinCode,
       null
     )
+
+
+
+
   }
+
 
   private fun startConnectingToDevice() {
     if (gatt != null) {
@@ -226,9 +244,18 @@ class DeviceProvisioningFragment : Fragment() {
 
       setAttestationDelegate()
 
+
+
+
       deviceController.pairDevice(gatt, connId, deviceId, deviceInfo.setupPinCode, network)
       DeviceIdUtil.setNextAvailableId(requireContext(), deviceId + 1)
+
+
+
+
     }
+
+
   }
 
   private fun showMessage(msgResId: Int, stringArgs: String? = null) {
@@ -243,6 +270,9 @@ class DeviceProvisioningFragment : Fragment() {
   inner class ConnectionCallback : GenericChipDeviceListener() {
     override fun onConnectDeviceComplete() {
       Log.d(TAG, "onConnectDeviceComplete")
+
+
+
     }
 
     override fun onStatusUpdate(status: Int) {
@@ -253,6 +283,8 @@ class DeviceProvisioningFragment : Fragment() {
       if (errorCode == STATUS_PAIRING_SUCCESS) {
         FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
           ?.onCommissioningComplete(0L, nodeId)
+
+
       } else {
         showMessage(R.string.rendezvous_over_ble_pairing_failure_text)
         FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
@@ -267,7 +299,14 @@ class DeviceProvisioningFragment : Fragment() {
         showMessage(R.string.rendezvous_over_ble_pairing_failure_text)
         FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
           ?.onCommissioningComplete(code)
+      }else {
+
+
+        // 通知配网完成
+        FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
+          ?.onCommissioningComplete(0L)
       }
+
     }
 
     override fun onOpCSRGenerationComplete(csr: ByteArray) {
@@ -291,6 +330,9 @@ class DeviceProvisioningFragment : Fragment() {
       deviceController.updateCommissioningICDRegistrationInfo(
         ICDRegistrationInfo.newBuilder().build()
       )
+
+
+
     }
 
     override fun onICDRegistrationComplete(errorCode: Long, icdDeviceInfo: ICDDeviceInfo) {
@@ -340,6 +382,7 @@ class DeviceProvisioningFragment : Fragment() {
      */
     fun newInstance(
       deviceInfo: CHIPDeviceInfo,
+
       networkCredentialsParcelable: NetworkCredentialsParcelable?,
     ): DeviceProvisioningFragment {
       return DeviceProvisioningFragment().apply {

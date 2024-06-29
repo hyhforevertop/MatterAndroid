@@ -39,6 +39,7 @@ import androidx.fragment.app.Fragment
 import com.google.chip.chiptool.R
 import com.google.chip.chiptool.SelectActionFragment
 import com.google.chip.chiptool.databinding.BarcodeFragmentBinding
+import com.google.chip.chiptool.provisioning.DeviceProvisioningFragment
 import com.google.chip.chiptool.util.FragmentUtil
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -202,8 +203,11 @@ class BarcodeFragment : Fragment() {
         val payload =
           barcode.displayValue?.let { OnboardingPayloadParser().parseQrCode(it) } ?: return@post
 
+        val deviceInfotemp = CHIPDeviceInfo.fromSetupPayload(payload)
         FragmentUtil.getHost(this@BarcodeFragment, Callback::class.java)
           ?.onCHIPDeviceInfoReceived(CHIPDeviceInfo.fromSetupPayload(payload))
+
+
       } catch (ex: UnrecognizedQrCodeException) {
         Log.e(TAG, "Unrecognized QR Code", ex)
         Toast.makeText(requireContext(), "Unrecognized QR Code", Toast.LENGTH_SHORT).show()

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -16,23 +17,23 @@
         android:id="@+id/ssidEd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_below="@id/titleTv"
+        android:layout_margin="16dp"
+        android:hint="@string/enter_wifi_ssid_hint"
         android:inputType="text"
-        android:textSize="20sp"
-        android:text="ZTE-f4c5yt"
-        android:hint="@string/enter_wifi_ssid_hint"/>
+        android:text="OnePlus Ace 2 Pro"
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/pwdEd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_below="@id/ssidEd"
+        android:layout_margin="16dp"
+        android:hint="@string/enter_wifi_password_hint"
         android:inputType="text"
-        android:text="Renhejia0801"
-        android:textSize="20sp"
-        android:hint="@string/enter_wifi_password_hint"/>
+        android:text="catxxp123"
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/saveNetworkBtn"

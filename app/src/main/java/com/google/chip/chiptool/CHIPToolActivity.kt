@@ -74,6 +74,7 @@ class CHIPToolActivity :
     if (Intent.ACTION_VIEW == intent?.action) {
       onReturnIntent(intent)
     }
+
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
@@ -110,7 +111,10 @@ class CHIPToolActivity :
   }
 
   override fun onNetworkCredentialsEntered(networkCredentials: NetworkCredentialsParcelable) {
-    showFragment(DeviceProvisioningFragment.newInstance(deviceInfo!!, networkCredentials))
+    showFragment(DeviceProvisioningFragment.newInstance(
+        deviceInfo!!,
+        networkCredentials
+    ))
   }
 
   override fun handleReadFromLedgerClicked(deviceInfo: CHIPDeviceInfo) {

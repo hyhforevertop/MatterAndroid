@@ -33,9 +33,11 @@ import chip.platform.NsdManagerServiceResolver
 import chip.platform.PreferencesConfigurationManager
 import chip.platform.PreferencesKeyValueStoreManager
 import com.google.chip.chiptool.attestation.ExampleAttestationTrustStoreDelegate
+import com.google.gson.JsonObject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.UUID
 
 /** Lazily instantiates [ChipDeviceController] and holds a reference to it. */
 object ChipClient {
@@ -102,6 +104,8 @@ object ChipClient {
           DiagnosticDataProviderImpl(context)
         )
     }
+
+
 
     return androidPlatform
   }

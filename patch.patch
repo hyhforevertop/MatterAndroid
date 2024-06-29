@@ -1,0 +1,632 @@
+Subject: [PATCH] patch
+---
+Index: app/src/main/java/com/google/chip/chiptool/bluetooth/BluetoothManager.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/google/chip/chiptool/bluetooth/BluetoothManager.kt b/app/src/main/java/com/google/chip/chiptool/bluetooth/BluetoothManager.kt
+--- a/app/src/main/java/com/google/chip/chiptool/bluetooth/BluetoothManager.kt	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/java/com/google/chip/chiptool/bluetooth/BluetoothManager.kt	(date 1717761279524)
+@@ -16,6 +16,8 @@
+ import android.util.Log
+ import chip.platform.BleCallback
+ import com.google.chip.chiptool.ChipClient
++import com.google.chip.chiptool.WebSocketClient
++import com.google.gson.JsonObject
+ import java.util.UUID
+ import kotlin.coroutines.resume
+ import kotlinx.coroutines.CancellableContinuation
+@@ -233,6 +235,8 @@
+   override fun onCloseBleComplete(connId: Int) {
+     connectionId = 0
+     Log.d(TAG, "onCloseBleComplete")
++
++
+   }
+ 
+   override fun onNotifyChipConnectionClosed(connId: Int) {
+Index: app/src/main/res/layout/enter_wifi_network_fragment.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/enter_wifi_network_fragment.xml b/app/src/main/res/layout/enter_wifi_network_fragment.xml
+--- a/app/src/main/res/layout/enter_wifi_network_fragment.xml	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/res/layout/enter_wifi_network_fragment.xml	(date 1717764012965)
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
+     android:orientation="vertical" android:layout_width="match_parent"
+     android:layout_height="match_parent">
+ 
+@@ -16,23 +17,23 @@
+         android:id="@+id/ssidEd"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:layout_margin="16dp"
+         android:layout_below="@id/titleTv"
++        android:layout_margin="16dp"
++        android:hint="@string/enter_wifi_ssid_hint"
+         android:inputType="text"
+-        android:textSize="20sp"
+-        android:text="ZTE-f4c5yt"
+-        android:hint="@string/enter_wifi_ssid_hint"/>
++        android:text="hyh"
++        android:textSize="20sp" />
+ 
+     <EditText
+         android:id="@+id/pwdEd"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:layout_margin="16dp"
+         android:layout_below="@id/ssidEd"
++        android:layout_margin="16dp"
++        android:hint="@string/enter_wifi_password_hint"
+         android:inputType="text"
+-        android:text="Renhejia0801"
+-        android:textSize="20sp"
+-        android:hint="@string/enter_wifi_password_hint"/>
++        android:text="01386609x"
++        android:textSize="20sp" />
+ 
+     <Button
+         android:id="@+id/saveNetworkBtn"
+Index: app/src/main/java/com/google/chip/chiptool/setuppayloadscanner/BarcodeFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/google/chip/chiptool/setuppayloadscanner/BarcodeFragment.kt b/app/src/main/java/com/google/chip/chiptool/setuppayloadscanner/BarcodeFragment.kt
+--- a/app/src/main/java/com/google/chip/chiptool/setuppayloadscanner/BarcodeFragment.kt	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/java/com/google/chip/chiptool/setuppayloadscanner/BarcodeFragment.kt	(date 1717750016547)
+@@ -39,6 +39,7 @@
+ import com.google.chip.chiptool.R
+ import com.google.chip.chiptool.SelectActionFragment
+ import com.google.chip.chiptool.databinding.BarcodeFragmentBinding
++import com.google.chip.chiptool.provisioning.DeviceProvisioningFragment
+ import com.google.chip.chiptool.util.FragmentUtil
+ import com.google.mlkit.vision.barcode.BarcodeScanner
+ import com.google.mlkit.vision.barcode.BarcodeScanning
+@@ -202,8 +203,11 @@
+         val payload =
+           barcode.displayValue?.let { OnboardingPayloadParser().parseQrCode(it) } ?: return@post
+ 
++        val deviceInfotemp = CHIPDeviceInfo.fromSetupPayload(payload)
+         FragmentUtil.getHost(this@BarcodeFragment, Callback::class.java)
+           ?.onCHIPDeviceInfoReceived(CHIPDeviceInfo.fromSetupPayload(payload))
++
++
+       } catch (ex: UnrecognizedQrCodeException) {
+         Log.e(TAG, "Unrecognized QR Code", ex)
+         Toast.makeText(requireContext(), "Unrecognized QR Code", Toast.LENGTH_SHORT).show()
+Index: app/src/main/java/com/google/chip/chiptool/provisioning/DeviceProvisioningFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/google/chip/chiptool/provisioning/DeviceProvisioningFragment.kt b/app/src/main/java/com/google/chip/chiptool/provisioning/DeviceProvisioningFragment.kt
+--- a/app/src/main/java/com/google/chip/chiptool/provisioning/DeviceProvisioningFragment.kt	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/java/com/google/chip/chiptool/provisioning/DeviceProvisioningFragment.kt	(date 1717774941967)
+@@ -18,6 +18,8 @@
+ 
+ package com.google.chip.chiptool.provisioning
+ 
++import APICommand
++import CommandMessage
+ import android.bluetooth.BluetoothGatt
+ import android.content.DialogInterface
+ import android.os.Bundle
+@@ -30,29 +32,38 @@
+ import androidx.fragment.app.Fragment
+ import androidx.lifecycle.lifecycleScope
+ import chip.devicecontroller.AttestationInfo
++import chip.devicecontroller.ChipClusters
+ import chip.devicecontroller.ChipDeviceController
++import chip.devicecontroller.ClusterIDMapping.AdministratorCommissioning.OpenCommissioningWindowCommandField
+ import chip.devicecontroller.DeviceAttestationDelegate
+ import chip.devicecontroller.ICDDeviceInfo
+ import chip.devicecontroller.ICDRegistrationInfo
+ import chip.devicecontroller.NetworkCredentials
++import chip.devicecontroller.OpenCommissioningCallback
+ import com.google.chip.chiptool.ChipClient
+ import com.google.chip.chiptool.GenericChipDeviceListener
+ import com.google.chip.chiptool.NetworkCredentialsParcelable
+ import com.google.chip.chiptool.R
++import com.google.chip.chiptool.WebSocketClient
+ import com.google.chip.chiptool.bluetooth.BluetoothManager
+ import com.google.chip.chiptool.setuppayloadscanner.CHIPDeviceInfo
+ import com.google.chip.chiptool.util.DeviceIdUtil
+ import com.google.chip.chiptool.util.FragmentUtil
++import com.google.gson.Gson
++import com.google.gson.JsonObject
+ import kotlinx.coroutines.CoroutineScope
+ import kotlinx.coroutines.ExperimentalCoroutinesApi
+ import kotlinx.coroutines.Runnable
+ import kotlinx.coroutines.launch
++import java.util.UUID
++import kotlin.math.log
+ 
+ @ExperimentalCoroutinesApi
+ class DeviceProvisioningFragment : Fragment() {
+ 
+   private lateinit var deviceInfo: CHIPDeviceInfo
+-
++  private lateinit var webSocketClient: WebSocketClient
++  private lateinit var qrCodetemp: String
+   private var gatt: BluetoothGatt? = null
+ 
+   private val networkCredentialsParcelable: NetworkCredentialsParcelable?
+@@ -67,6 +78,11 @@
+   override fun onCreate(savedInstanceState: Bundle?) {
+     super.onCreate(savedInstanceState)
+     deviceController = ChipClient.getDeviceController(requireContext())
++    //webSocketClient = WebSocketClient("ws://192.168.41.126:5580/ws")
++    Log.e("websocketconnect","test")
++    //webSocketClient.connect()
++
++
+   }
+ 
+   override fun onCreateView(
+@@ -138,7 +154,7 @@
+             AlertDialog.Builder(activity)
+               .setPositiveButton(
+                 "Continue",
+-                DialogInterface.OnClickListener { dialog, id ->
++                { dialog, id ->
+                   deviceController.continueCommissioning(devicePtr, true)
+                 }
+               )
+@@ -175,6 +191,9 @@
+       deviceInfo.setupPinCode,
+       null
+     )
++
++
++
+   }
+ 
+   private fun startConnectingToDevice() {
+@@ -228,7 +247,12 @@
+ 
+       deviceController.pairDevice(gatt, connId, deviceId, deviceInfo.setupPinCode, network)
+       DeviceIdUtil.setNextAvailableId(requireContext(), deviceId + 1)
++
++
+     }
++
++
++
+   }
+ 
+   private fun showMessage(msgResId: Int, stringArgs: String? = null) {
+@@ -243,6 +267,9 @@
+   inner class ConnectionCallback : GenericChipDeviceListener() {
+     override fun onConnectDeviceComplete() {
+       Log.d(TAG, "onConnectDeviceComplete")
++
++
++
+     }
+ 
+     override fun onStatusUpdate(status: Int) {
+@@ -253,6 +280,7 @@
+       if (errorCode == STATUS_PAIRING_SUCCESS) {
+         FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
+           ?.onCommissioningComplete(0L, nodeId)
++
+       } else {
+         showMessage(R.string.rendezvous_over_ble_pairing_failure_text)
+         FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
+@@ -267,7 +295,29 @@
+         showMessage(R.string.rendezvous_over_ble_pairing_failure_text)
+         FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
+           ?.onCommissioningComplete(code)
++      }else {
++        Log.e("testifsend","message")
++        // 配网成功时，发送命令
++        // 构建 JSON 消息
++        //在这里添加
++
++        val webSocketClient = WebSocketClient("ws://192.168.39.126:5580/ws")
++        webSocketClient.connect()
++        val jsonMessage1 = JsonObject().apply {
++          addProperty("message_id", UUID.randomUUID().toString())
++          addProperty("command", APICommand.COMMISSION_WITH_CODE.value)
++          val args = JsonObject().apply {
++            addProperty("code", "MT:Y.K90YDA13XIQR6J100")
++            addProperty("network_only", true)
++          }
++          add("args", args)
++        }
++
++        // 通知配网完成
++        FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
++          ?.onCommissioningComplete(0L)
+       }
++
+     }
+ 
+     override fun onOpCSRGenerationComplete(csr: ByteArray) {
+@@ -291,6 +341,9 @@
+       deviceController.updateCommissioningICDRegistrationInfo(
+         ICDRegistrationInfo.newBuilder().build()
+       )
++
++
++
+     }
+ 
+     override fun onICDRegistrationComplete(errorCode: Long, icdDeviceInfo: ICDDeviceInfo) {
+@@ -340,6 +393,7 @@
+      */
+     fun newInstance(
+       deviceInfo: CHIPDeviceInfo,
++
+       networkCredentialsParcelable: NetworkCredentialsParcelable?,
+     ): DeviceProvisioningFragment {
+       return DeviceProvisioningFragment().apply {
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle b/app/build.gradle
+--- a/app/build.gradle	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/build.gradle	(date 1717768900847)
+@@ -101,7 +101,7 @@
+     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+     testImplementation 'junit:junit:4.12'
+     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
++    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+     implementation "androidx.core:core-ktx:1.3.0"
+     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+     implementation "androidx.work:work-runtime:2.7.1"
+@@ -116,6 +116,9 @@
+     implementation "androidx.camera:camera-view:${camerax_version}"
+ 
+     implementation 'com.google.protobuf:protobuf-java:3.22.0'
++    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
++    implementation 'com.squareup.okio:okio:2.8.0'
++    implementation 'libs/CHIPController.jar'
+ }
+ 
+ repositories {
+Index: .idea/deploymentTargetSelector.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/deploymentTargetSelector.xml b/.idea/deploymentTargetSelector.xml
+new file mode 100644
+--- /dev/null	(date 1717330667110)
++++ b/.idea/deploymentTargetSelector.xml	(date 1717330667110)
+@@ -0,0 +1,18 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="deploymentTargetSelector">
++    <selectionStates>
++      <SelectionState runConfigName="app">
++        <option name="selectionMode" value="DROPDOWN" />
++        <DropdownSelection timestamp="2024-06-02T12:12:01.212299300Z">
++          <Target type="DEFAULT_BOOT">
++            <handle>
++              <DeviceId pluginId="PhysicalDevice" identifier="serial=35069270170009Z" />
++            </handle>
++          </Target>
++        </DropdownSelection>
++        <DialogSelection />
++      </SelectionState>
++    </selectionStates>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	(date 1716900910911)
++++ b/.idea/vcs.xml	(date 1716900910911)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/AndroidManifest.xml	(date 1717335699432)
+@@ -19,6 +19,8 @@
+     <uses-permission android:name="android.permission.NFC" />
+ 
+     <application
++        android:usesCleartextTraffic="true"
++        android:networkSecurityConfig="@xml/network_security_config"
+         android:allowBackup="true"
+         android:icon="@mipmap/ic_launcher"
+         android:label="@string/app_name"
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/build.gradle	(date 1717148236489)
+@@ -2,6 +2,16 @@
+ buildscript {
+     ext.kotlin_version = '1.8.10'
+     repositories {
++        maven {
++            url=uri("https://maven.aliyun.com/repository/google")
++        }
++        maven {
++            url =uri("https://maven.aliyun.com/repository/public")
++        }
++        maven {
++            url =uri("https://maven.aliyun.com/repository/jcenter")
++        }
++
+         google()
+         mavenCentral()
+     }
+@@ -16,6 +26,15 @@
+ 
+ allprojects {
+     repositories {
++        maven {
++            url=uri("https://maven.aliyun.com/repository/google")
++        }
++        maven {
++            url =uri("https://maven.aliyun.com/repository/public")
++        }
++        maven {
++            url =uri("https://maven.aliyun.com/repository/jcenter")
++        }
+         google()
+         mavenCentral()
+     }
+Index: gradle.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/gradle.properties b/gradle.properties
+--- a/gradle.properties	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/gradle.properties	(date 1716901454227)
+@@ -29,3 +29,4 @@
+ # Has no effect if matterSdkSourceBuild is false or matterBuildSrcDir is empty.
+ # See https://developer.android.com/ndk/guides/abis#sa for a list of ABIs.
+ matterSourceBuildAbiFilters=arm64-v8a
++org.gradle.jvmargs=--add-opens java.base/java.io=ALL-UNNAMED
+\ No newline at end of file
+Index: app/src/main/java/com/google/chip/chiptool/ChipClient.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/google/chip/chiptool/ChipClient.kt b/app/src/main/java/com/google/chip/chiptool/ChipClient.kt
+--- a/app/src/main/java/com/google/chip/chiptool/ChipClient.kt	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/java/com/google/chip/chiptool/ChipClient.kt	(date 1717756556530)
+@@ -33,9 +33,11 @@
+ import chip.platform.PreferencesConfigurationManager
+ import chip.platform.PreferencesKeyValueStoreManager
+ import com.google.chip.chiptool.attestation.ExampleAttestationTrustStoreDelegate
++import com.google.gson.JsonObject
+ import kotlin.coroutines.resume
+ import kotlin.coroutines.resumeWithException
+ import kotlinx.coroutines.suspendCancellableCoroutine
++import java.util.UUID
+ 
+ /** Lazily instantiates [ChipDeviceController] and holds a reference to it. */
+ object ChipClient {
+@@ -103,6 +105,8 @@
+         )
+     }
+ 
++
++
+     return androidPlatform
+   }
+ 
+Index: .idea/migrations.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/migrations.xml b/.idea/migrations.xml
+new file mode 100644
+--- /dev/null	(date 1716901293094)
++++ b/.idea/migrations.xml	(date 1716901293094)
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectMigrations">
++    <option name="MigrateToGradleLocalJavaHome">
++      <set>
++        <option value="$PROJECT_DIR$" />
++      </set>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/java/com/google/chip/chiptool/GenericChipDeviceListener.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/google/chip/chiptool/GenericChipDeviceListener.kt b/app/src/main/java/com/google/chip/chiptool/GenericChipDeviceListener.kt
+--- a/app/src/main/java/com/google/chip/chiptool/GenericChipDeviceListener.kt	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/java/com/google/chip/chiptool/GenericChipDeviceListener.kt	(date 1717757705446)
+@@ -2,6 +2,8 @@
+ 
+ import chip.devicecontroller.ChipDeviceController
+ import chip.devicecontroller.ICDDeviceInfo
++import com.google.gson.JsonObject
++import java.util.UUID
+ 
+ open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
+   override fun onConnectDeviceComplete() {
+@@ -14,6 +16,7 @@
+ 
+   override fun onPairingComplete(code: Long) {
+     // No op
++
+   }
+ 
+   override fun onPairingDeleted(code: Long) {
+Index: .idea/kotlinc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/kotlinc.xml b/.idea/kotlinc.xml
+new file mode 100644
+--- /dev/null	(date 1716901293082)
++++ b/.idea/kotlinc.xml	(date 1716901293082)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="KotlinJpsPluginSettings">
++    <option name="version" value="1.8.0" />
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/java/com/google/chip/chiptool/CHIPToolActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/google/chip/chiptool/CHIPToolActivity.kt b/app/src/main/java/com/google/chip/chiptool/CHIPToolActivity.kt
+--- a/app/src/main/java/com/google/chip/chiptool/CHIPToolActivity.kt	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/java/com/google/chip/chiptool/CHIPToolActivity.kt	(date 1717755302604)
+@@ -74,6 +74,7 @@
+     if (Intent.ACTION_VIEW == intent?.action) {
+       onReturnIntent(intent)
+     }
++
+   }
+ 
+   override fun onSaveInstanceState(outState: Bundle) {
+@@ -110,7 +111,10 @@
+   }
+ 
+   override fun onNetworkCredentialsEntered(networkCredentials: NetworkCredentialsParcelable) {
+-    showFragment(DeviceProvisioningFragment.newInstance(deviceInfo!!, networkCredentials))
++    showFragment(DeviceProvisioningFragment.newInstance(
++        deviceInfo!!,
++        networkCredentials
++    ))
+   }
+ 
+   override fun handleReadFromLedgerClicked(deviceInfo: CHIPDeviceInfo) {
+Index: gradle/wrapper/gradle-wrapper.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+--- a/gradle/wrapper/gradle-wrapper.properties	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/gradle/wrapper/gradle-wrapper.properties	(date 1716901178459)
+@@ -1,5 +1,5 @@
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-7.1.1-bin.zip
++distributionUrl=https://mirrors.cloud.tencent.com/gradle/gradle-7.2-bin.zip
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/compiler.xml b/.idea/compiler.xml
+--- a/.idea/compiler.xml	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/.idea/compiler.xml	(date 1716901230247)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="CompilerConfiguration">
+-    <bytecodeTargetLevel target="11" />
++    <bytecodeTargetLevel target="17" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: .idea/.name
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.name b/.idea/.name
+new file mode 100644
+--- /dev/null	(date 1716901230171)
++++ b/.idea/.name	(date 1716901230171)
+@@ -0,0 +1,1 @@
++MatterDemo
+\ No newline at end of file
+Index: app/src/main/java/com/google/chip/chiptool/provisioning/EnterNetworkFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/google/chip/chiptool/provisioning/EnterNetworkFragment.kt b/app/src/main/java/com/google/chip/chiptool/provisioning/EnterNetworkFragment.kt
+--- a/app/src/main/java/com/google/chip/chiptool/provisioning/EnterNetworkFragment.kt	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/app/src/main/java/com/google/chip/chiptool/provisioning/EnterNetworkFragment.kt	(date 1717761106435)
+@@ -18,6 +18,7 @@
+ package com.google.chip.chiptool.provisioning
+ 
+ import android.os.Bundle
++import android.util.Log
+ import android.view.LayoutInflater
+ import android.view.View
+ import android.view.ViewGroup
+@@ -27,7 +28,10 @@
+ import androidx.fragment.app.Fragment
+ import com.google.chip.chiptool.NetworkCredentialsParcelable
+ import com.google.chip.chiptool.R
++import com.google.chip.chiptool.WebSocketClient
+ import com.google.chip.chiptool.util.FragmentUtil
++import com.google.gson.JsonObject
++import java.util.UUID
+ 
+ /**
+  * Fragment to collect Wi-Fi network information from user and send it to device being provisioned.
+@@ -85,6 +89,9 @@
+       )
+     FragmentUtil.getHost(this, Callback::class.java)
+       ?.onNetworkCredentialsEntered(networkCredentials)
++    //add
++
++
+   }
+ 
+   private fun saveThreadNetwork(view: View) {
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision b8b3c1169c23d9eca938d29eb542956d90705a6d)
++++ b/.idea/misc.xml	(date 1716901293060)
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ExternalStorageConfigurationManager" enabled="true" />
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="azul-16 (2)" project-jdk-type="JavaSDK" />
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="jbr-17" project-jdk-type="JavaSDK" />
+ </project>
+\ No newline at end of file

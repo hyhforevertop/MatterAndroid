@@ -1,5 +1,7 @@
 package com.google.chip.chiptool.clusterclient
 
+import APICommand
+import CommandMessage
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,13 +20,26 @@ import chip.devicecontroller.model.InvokeElement
 import chip.devicecontroller.model.NodeState
 import com.google.chip.chiptool.ChipClient
 import com.google.chip.chiptool.GenericChipDeviceListener
+import com.google.chip.chiptool.MyWebSocketListener
 import com.google.chip.chiptool.R
+import com.google.chip.chiptool.WebSocketClient
+import com.google.chip.chiptool.WebSocketResponseListener
 import com.google.chip.chiptool.databinding.MultiAdminClientFragmentBinding
 import com.google.chip.chiptool.util.toAny
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import kotlinx.coroutines.*
 import matter.tlv.AnonymousTag
 import matter.tlv.TlvReader
 import matter.tlv.TlvWriter
+
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import okio.ByteString
+import java.util.UUID
 
 class MultiAdminClientFragment : Fragment() {
   private val deviceController: ChipDeviceController
@@ -147,6 +162,7 @@ class MultiAdminClientFragment : Fragment() {
   private suspend fun sendEnhancedCommissioningCommandClick() {
     val testDuration = binding.timeoutEd.text.toString().toInt()
     val testIteration = 1000
+    var  nodeIdCurrent=0;
     val devicePointer =
       try {
         ChipClient.getConnectedDevicePointer(requireContext(), addressUpdateFragment.deviceId)
@@ -172,9 +188,62 @@ class MultiAdminClientFragment : Fragment() {
         }
 
         override fun onSuccess(deviceId: Long, manualPairingCode: String?, qrCode: String?) {
+
+
+            Log.e("Manucode",manualPairingCode.toString())
+          val webSocketClient = WebSocketClient("ws://192.168.118.177:5580/ws", MyWebSocketListener(object :
+            WebSocketResponseListener {
+            override fun onMessageReceived(message: String) {
+              // Handle received message
+              println("Message received: $message")
+
+              val jsonObject = JsonParser().parse(message).asJsonObject
+              if (jsonObject.has("result")) {
+                val result = jsonObject.getAsJsonArray("result")
+                result.forEach { element ->
+                  val node = element.asJsonObject
+                  if (node.has("node_id")) {
+                    val nodeId = node.get("node_id").asInt
+                    nodeIdCurrent=nodeId+1
+                    showMessage("Node ID Current: $nodeIdCurrent")
+
+                  }
+                }
+              }
+            }
+
+            override fun onBytesReceived(bytes: ByteString) {
+              // Handle received bytes
+              println("Bytes received: ${bytes.hex()}")
+            }
+          }))
+
           showMessage(
-            "OpenCommissioning Success! \n Node ID: $deviceId\n\tManual : $manualPairingCode\n\tQRCode : $qrCode"
+            "OpenCommissioning Success! \n Node ID: $deviceId\n\tManual : $manualPairingCode\n\tQRCode : $qrCode" +
+                    "\n Node ID current: $nodeIdCurrent\n\t"
+
           )
+
+          webSocketClient.connect()
+
+          val jsonMessage = JsonObject().apply {
+            addProperty("message_id", UUID.randomUUID().toString())
+            addProperty("command", APICommand.COMMISSION_WITH_CODE.value)
+            val args = JsonObject().apply {
+              addProperty("code", manualPairingCode.toString())
+            }
+            add("args", args)
+          }
+          webSocketClient.sendMessage(jsonMessage.toString())
+
+          val jsonMessage2 = JsonObject().apply {
+            addProperty("message_id", UUID.randomUUID().toString())
+            addProperty("command", APICommand.GET_NODES.value)
+          }
+          webSocketClient.sendMessage(jsonMessage2.toString())
+
+          Thread.sleep(10000)
+          webSocketClient.close()
         }
       }
     )

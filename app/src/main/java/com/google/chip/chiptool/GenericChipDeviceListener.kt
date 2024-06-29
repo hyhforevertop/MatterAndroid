@@ -2,6 +2,8 @@ package com.google.chip.chiptool
 
 import chip.devicecontroller.ChipDeviceController
 import chip.devicecontroller.ICDDeviceInfo
+import com.google.gson.JsonObject
+import java.util.UUID
 
 open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
   override fun onConnectDeviceComplete() {
@@ -14,6 +16,7 @@ open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
 
   override fun onPairingComplete(code: Long) {
     // No op
+
   }
 
   override fun onPairingDeleted(code: Long) {

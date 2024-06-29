@@ -16,6 +16,8 @@ import android.os.ParcelUuid
 import android.util.Log
 import chip.platform.BleCallback
 import com.google.chip.chiptool.ChipClient
+import com.google.chip.chiptool.WebSocketClient
+import com.google.gson.JsonObject
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlinx.coroutines.CancellableContinuation
@@ -233,6 +235,8 @@ class BluetoothManager : BleCallback {
   override fun onCloseBleComplete(connId: Int) {
     connectionId = 0
     Log.d(TAG, "onCloseBleComplete")
+
+
   }
 
   override fun onNotifyChipConnectionClosed(connId: Int) {

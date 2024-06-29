@@ -18,6 +18,7 @@
 package com.google.chip.chiptool.provisioning
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +28,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.chip.chiptool.NetworkCredentialsParcelable
 import com.google.chip.chiptool.R
+import com.google.chip.chiptool.WebSocketClient
 import com.google.chip.chiptool.util.FragmentUtil
+import com.google.gson.JsonObject
+import java.util.UUID
 
 /**
  * Fragment to collect Wi-Fi network information from user and send it to device being provisioned.
@@ -85,6 +89,9 @@ class EnterNetworkFragment : Fragment() {
       )
     FragmentUtil.getHost(this, Callback::class.java)
       ?.onNetworkCredentialsEntered(networkCredentials)
+    //add
+
+
   }
 
   private fun saveThreadNetwork(view: View) {
